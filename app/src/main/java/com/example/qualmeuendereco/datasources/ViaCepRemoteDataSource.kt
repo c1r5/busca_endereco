@@ -14,7 +14,11 @@ class ViaCepRemoteDataSource(private val service: ViacepRetrofitService) {
 
         service.getEndereco(cep).enqueue(object : retrofit2.Callback<Endereco> {
             override fun onResponse(p0: Call<Endereco>, p1: Response<Endereco>) {
-                launch { p1.body()?.let { send(it) } }
+                if (p1.code() == 200) {
+                    launch { p1.body()?.let { send(it) } }
+                } else {
+                    close(Throwable("Erro ao consultar CEP"))
+                }
             }
 
             override fun onFailure(p0: Call<Endereco>, p1: Throwable) {
