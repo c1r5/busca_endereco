@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">qual meu endereco</string>
+    <string name="search">Buscar</string>
+    <string name="cep">CEP</string>
+    <string name="city">Cidade</string>
+    <string name="state">Estado</string>
+    <string name="neighborhood">Bairro</string>
+    <string name="debug_text">DEBUG</string>
 </resources>
