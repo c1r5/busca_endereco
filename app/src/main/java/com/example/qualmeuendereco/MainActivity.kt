@@ -52,9 +52,12 @@ class MainActivity : AppCompatActivity() {
 
         MainScope().launch {
             mainViewModel.error.collect {
-                it?.let { error ->
-                    Toast.makeText(this@MainActivity, "Erro ao consultar CEP", Toast.LENGTH_SHORT)
-                        .show()
+                it?.let {
+                    Toast.makeText(
+                        this@MainActivity,
+                        it.message ?: "Erro ao consultar CEP",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
