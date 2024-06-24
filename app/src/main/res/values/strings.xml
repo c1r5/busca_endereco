@@ -4,6 +4,12 @@
     <string name="cep">CEP</string>
     <string name="city">Cidade</string>
     <string name="state">Estado</string>
+    <string name="state_eg">Selecione um estado</string>
     <string name="neighborhood">Bairro</string>
     <string name="debug_text">DEBUG</string>
+    <string name="error_text">Erro ao consultar CEP</string>
+    <string name="error_not_found">CEP não encontrado</string>
+    <string name="error_invalid">CEP inválido</string>
+    <string name="error_service_unavailable">Serviço indisponível</string>
+    <string name="state_list_asset_filename">estados.json</string>
 </resources>

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.QualMeuEndereco.TextFields" parent="ThemeOverlay.Material3.TextInputEditText">
+    <style name="Theme.QualMeuEndereco.TextFields" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="android:padding">16dp</item>
         <item name="android:background">@drawable/fields_background</item>
+    </style>
+
+    <style name="Theme.QualMeuEndereco.TextFields.State" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <item name="android:background">@drawable/fields_background</item>
+        <item name="android:padding">2dp</item>
     </style>
 </resources>

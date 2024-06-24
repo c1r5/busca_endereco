@@ -1,15 +1,19 @@
 package com.example.qualmeuendereco
 
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.qualmeuendereco.databinding.ActivityMainBinding
+import com.example.qualmeuendereco.models.BrazilStateDataModel
 import com.example.qualmeuendereco.viewmodels.MainViewModel
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
     private val activityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -18,8 +22,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cepField: TextInputEditText
     private lateinit var searchButton: Button
     private lateinit var referenceField: TextInputEditText
-    private lateinit var ufField: TextInputEditText
+    private lateinit var ufField: AutoCompleteTextView
     private lateinit var cityField: TextInputEditText
+    private lateinit var adapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +36,16 @@ class MainActivity : AppCompatActivity() {
         ufField = activityMainBinding.ufField
         cityField = activityMainBinding.cityField
 
+        val ufList = mainViewModel.getStates(baseContext)
+
+        adapter = ArrayAdapter<String>(
+            this,
+            R.layout.dropdown_menu_item,
+            ufList.map { it.nome }
+        )
+
+        ufField.setAdapter(adapter)
+
         searchButton.setOnClickListener {
             val cep = cepField.text.toString()
             if (cep.isNotEmpty()) {
@@ -39,17 +54,17 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Digite um CEP válido", Toast.LENGTH_SHORT).show()
             }
         }
-
+        // Load data into UI
         MainScope().launch {
             mainViewModel.cep.collect {
                 it?.let { endereco ->
                     referenceField.setText(endereco.bairro)
-                    ufField.setText(endereco.uf)
+                    selectDropdownState(ufList.find { state -> state.sigla == endereco.uf })
                     cityField.setText(endereco.localidade)
                 }
             }
         }
-
+        // Handle errors
         MainScope().launch {
             mainViewModel.error.collect {
                 it?.let {
@@ -60,6 +75,12 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+        }
+    }
+
+    private fun selectDropdownState(stateDataModel: BrazilStateDataModel?) {
+        stateDataModel?.let { state ->
+            ufField.setText(state.nome, false)
         }
     }
 }
