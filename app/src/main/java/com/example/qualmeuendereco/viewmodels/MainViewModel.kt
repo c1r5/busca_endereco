@@ -15,9 +15,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
+    private val _searchButtonState = MutableStateFlow(SearchButtonState.IDLE)
     private val _cep = MutableStateFlow<ViaCepResponseModel?>(null)
     private val _error = MutableStateFlow<Throwable?>(null)
 
+    val searchButtonState = _searchButtonState.asStateFlow()
     val cep = _cep.asStateFlow()
     val error = _error.asStateFlow()
 
@@ -47,5 +49,15 @@ class MainViewModel : ViewModel() {
         val states = gson().fromJson(content, Array<BrazilStateDataModel>::class.java)
 
         return states.toList()
+    }
+
+    fun setSearchButtonState(state: SearchButtonState) {
+        viewModelScope.launch { _searchButtonState.emit(state) }
+    }
+
+    enum class SearchButtonState {
+        LOADING,
+        LOADED,
+        IDLE
     }
 }

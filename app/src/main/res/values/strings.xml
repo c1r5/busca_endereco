@@ -12,4 +12,7 @@
     <string name="error_invalid">CEP inválido</string>
     <string name="error_service_unavailable">Serviço indisponível</string>
     <string name="state_list_asset_filename">estados.json</string>
+    <string name="new_search">Nova Busca</string>
+    <string name="searching">Buscando…</string>
+
 </resources>

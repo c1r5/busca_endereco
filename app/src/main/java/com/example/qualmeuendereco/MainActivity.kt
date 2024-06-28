@@ -8,10 +8,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.qualmeuendereco.databinding.ActivityMainBinding
+import com.example.qualmeuendereco.helpers.clearField
 import com.example.qualmeuendereco.models.BrazilStateDataModel
 import com.example.qualmeuendereco.viewmodels.MainViewModel
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
@@ -26,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cityField: TextInputEditText
     private lateinit var adapter: ArrayAdapter<String>
 
+    private var newSearch = MutableStateFlow(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(activityMainBinding.root)
@@ -37,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         cityField = activityMainBinding.cityField
 
         val ufList = mainViewModel.getStates(baseContext)
+
+        mainViewModel.setSearchButtonState(MainViewModel.SearchButtonState.IDLE)
 
         adapter = ArrayAdapter<String>(
             this,
@@ -50,6 +56,8 @@ class MainActivity : AppCompatActivity() {
             val cep = cepField.text.toString()
             if (cep.isNotEmpty()) {
                 mainViewModel.consultaCep(cep)
+                mainViewModel.setSearchButtonState(MainViewModel.SearchButtonState.LOADING)
+                newSearch.value = true
             } else {
                 Toast.makeText(this, "Digite um CEP válido", Toast.LENGTH_SHORT).show()
             }
@@ -61,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                     referenceField.setText(endereco.bairro)
                     selectDropdownState(ufList.find { state -> state.sigla == endereco.uf })
                     cityField.setText(endereco.localidade)
+                    mainViewModel.setSearchButtonState(MainViewModel.SearchButtonState.LOADED)
                 }
             }
         }
@@ -73,6 +82,38 @@ class MainActivity : AppCompatActivity() {
                         it.message ?: "Erro ao consultar CEP",
                         Toast.LENGTH_SHORT
                     ).show()
+                    mainViewModel.setSearchButtonState(MainViewModel.SearchButtonState.IDLE)
+                }
+            }
+        }
+        // Handler SearchButtonState
+        MainScope().launch {
+            mainViewModel.searchButtonState.collect {
+                when (it) {
+                    MainViewModel.SearchButtonState.LOADING -> {
+                        searchButton.isEnabled = false
+                        searchButton.text = getString(R.string.searching)
+                    }
+
+                    MainViewModel.SearchButtonState.LOADED -> {
+                        searchButton.isEnabled = true
+                        searchButton.text = getString(R.string.new_search)
+                    }
+
+                    MainViewModel.SearchButtonState.IDLE -> {
+                        searchButton.isEnabled = true
+                        searchButton.text = getString(R.string.search)
+                        resetFields()
+                    }
+                }
+            }
+        }
+        // Handle newSearch
+        MainScope().launch {
+            newSearch.collect {
+                if (it) {
+                    resetFields()
+                    newSearch.value = false
                 }
             }
         }
@@ -82,5 +123,12 @@ class MainActivity : AppCompatActivity() {
         stateDataModel?.let { state ->
             ufField.setText(state.nome, false)
         }
+    }
+
+    private fun resetFields() {
+        cepField.clearField()
+        referenceField.clearField()
+        ufField.clearField()
+        cityField.clearField()
     }
 }
